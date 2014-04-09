@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace GameOfLife.GameOfLife
 {
-	public sealed class GameOfLifeClass:IDisposable
+	public sealed class GameOfLifeClass : IDisposable
 	{
 		#region Fields
 
@@ -16,8 +16,8 @@ namespace GameOfLife.GameOfLife
 		private bool _stop = false;
 
 		private delegate void MyEventHandler(List<PointULong> alive);
-
 		private readonly MyEventHandler _myFireUpdater;
+
 		private int _speed;
 		private readonly AutoResetEvent _speedChangedEvent = new AutoResetEvent(false);
 
@@ -59,11 +59,13 @@ namespace GameOfLife.GameOfLife
 
 		private void SetAlive(IEnumerable<PointULong> alive)
 		{
+			//set alive cells
 			foreach (var item in alive)
 			{
 				_aliveCells[item] = new Cell(item);
 			}
 
+			//locate all cells around alive
 			foreach (var i in _aliveCells.Values)
 			{
 				foreach (var j in i.AroundCellsCoords)
@@ -132,7 +134,7 @@ namespace GameOfLife.GameOfLife
 		/// <returns>Alive points</returns>
 		public List<Point> GetAlivePoints()
 		{
-			if(_aliveCells.Count==0)
+			if (_aliveCells.Count == 0)
 				return new List<Point>();
 
 			var minPoint = _aliveCells.First().Key;
@@ -154,7 +156,7 @@ namespace GameOfLife.GameOfLife
 		public void Play(int? steps)
 		{
 			_stop = false;
-			List<PointULong> alive= null;
+			List<PointULong> alive = null;
 			List<PointULong> dead = null;
 			while (!_stop && (!steps.HasValue || steps > 0))
 			{
@@ -167,12 +169,12 @@ namespace GameOfLife.GameOfLife
 					steps--;
 			}
 		}
-		#endregion
 
 		public void Dispose()
 		{
-			if(_speedChangedEvent!=null)
+			if (_speedChangedEvent != null)
 				_speedChangedEvent.Dispose();
 		}
+		#endregion
 	}
 }

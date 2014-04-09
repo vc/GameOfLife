@@ -15,17 +15,15 @@ namespace GameOfLife
 	{
 		#region Fields
 		private GameOfLifeClass _gol;
+		private readonly GraphPaint _graph;
+		private readonly ScreenLocation _currentView;
 		private Thread _workerThread;
 
-		private bool _vscrollProceed;
-		private readonly GraphPaint _graph;
-
-		private bool _hscrollProceed;
 		private Point? _mouseDownPoint;
 		private Point _offsetOnMouseDown;
 		private readonly object _mouseMovementLockObj = new object();
+
 		private bool _isStarted = false;
-		private readonly ScreenLocation _currentView;
 
 		private string _lastFileName;
 		#endregion
@@ -33,6 +31,7 @@ namespace GameOfLife
 		#region Constructor
 		public MainForm()
 		{
+			//set view position on center of ulong
 			_currentView = new ScreenLocation(new PointULong(ulong.MaxValue / 2, ulong.MaxValue / 2));
 
 			_graph = new GraphPaint();
@@ -168,25 +167,7 @@ namespace GameOfLife
 			try
 			{
 				var alivePoints = _gol.GetAlivePoints();
-				var matrix = new List<KeyValuePair<int, int>>();
-				var dimension = FileSerializer.FindDimensions(alivePoints);
-
-				foreach (var p in alivePoints)
-				{
-					matrix.Add(new KeyValuePair<int, int>(p.X, p.Y));
-				}
-
-				using (TextWriter tw = new StreamWriter(File.OpenWrite(fileName)))
-				{
-					for (int y = 0; y < dimension.Height; y++)
-					{
-						for (int x = 0; x < dimension.Width; x++)
-						{
-							tw.Write(matrix.Contains(new KeyValuePair<int, int>(x, y)) ? '*' : '.');
-						}
-						tw.Write(tw.NewLine);
-					}
-				}
+				FileSerializer.SavePoints(fileName, alivePoints);
 			}
 			catch (Exception ex)
 			{
@@ -293,48 +274,6 @@ namespace GameOfLife
 		private void BtnStep_Click(object sender, EventArgs e)
 		{
 			Step();
-		}
-
-		private void HScrollBar1_ValueChanged(object sender, EventArgs e)
-		{
-			if (_hscrollProceed)
-				return;
-			_hscrollProceed = true;
-
-			var changedValue = hScrollBar1.Value - 450;
-			hScrollBar1.Value = 450;
-
-			if (Math.Abs(changedValue) >= 100)
-			{
-				_currentView.IncOffsetX(Math.Sign(changedValue) * _graph.Width);
-			}
-			else
-			{
-				_currentView.IncOffsetX(Math.Sign(changedValue) * 100);
-			}
-			UpdatePosition();
-			_hscrollProceed = false;
-		}
-
-		private void VScrollBar1_ValueChanged(object sender, EventArgs e)
-		{
-			if (_vscrollProceed)
-				return;
-			_vscrollProceed = true;
-
-			var changedValue = vScrollBar1.Value - 450;
-			vScrollBar1.Value = 450;
-
-			if (Math.Abs(changedValue) >= 100)
-			{
-				_currentView.IncOffsetY(Math.Sign(changedValue) * _graph.Width);
-			}
-			else
-			{
-				_currentView.IncOffsetY(Math.Sign(changedValue) * 100);
-			}
-			UpdatePosition();
-			_vscrollProceed = false;
 		}
 
 		private void TrbScale_ValueChanged(object sender, EventArgs e)

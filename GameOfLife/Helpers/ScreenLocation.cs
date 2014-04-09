@@ -1,8 +1,11 @@
 ﻿using System.Drawing;
 using GameOfLife.GameOfLife;
 
-namespace GameOfLife
+namespace GameOfLife.Helpers
 {
+	/// <summary>
+	/// Adapter of view area in all ulong range
+	/// </summary>
 	public class ScreenLocation
 	{
 		private Point _offsetView;
@@ -52,7 +55,6 @@ namespace GameOfLife
 		{
 			get { return AbsoluteLocation + Dimension; }
 		}
-
 
 		public Point? GetVisiblePoint(PointULong point, bool nullIfUnvisible)
 		{

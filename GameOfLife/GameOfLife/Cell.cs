@@ -6,6 +6,8 @@ namespace GameOfLife.GameOfLife
 {
 	public class Cell
 	{
+		private PointULong _location;
+
 		public PointULong Location
 		{
 			get { return _location; }
@@ -77,6 +79,5 @@ namespace GameOfLife.GameOfLife
 				new Point(1, 1),
 			};
 
-		private PointULong _location;
 	}
 }

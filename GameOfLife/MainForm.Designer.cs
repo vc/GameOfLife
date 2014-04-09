@@ -77,7 +77,6 @@ namespace GameOfLife
 			this.vScrollBar1.Size = new System.Drawing.Size(17, 509);
 			this.vScrollBar1.TabIndex = 1;
 			this.vScrollBar1.Value = 450;
-			this.vScrollBar1.ValueChanged += new System.EventHandler(this.VScrollBar1_ValueChanged);
 			// 
 			// hScrollBar1
 			// 
@@ -91,7 +90,6 @@ namespace GameOfLife
 			this.hScrollBar1.Size = new System.Drawing.Size(930, 17);
 			this.hScrollBar1.TabIndex = 2;
 			this.hScrollBar1.Value = 450;
-			this.hScrollBar1.ValueChanged += new System.EventHandler(this.HScrollBar1_ValueChanged);
 			// 
 			// label1
 			// 
@@ -107,15 +105,15 @@ namespace GameOfLife
 			this.txtPosX.Location = new System.Drawing.Point(796, 14);
 			this.txtPosX.Name = "txtPosX";
 			this.txtPosX.ReadOnly = true;
-			this.txtPosX.Size = new System.Drawing.Size(26, 20);
+			this.txtPosX.Size = new System.Drawing.Size(57, 20);
 			this.txtPosX.TabIndex = 4;
 			// 
 			// txtPosY
 			// 
-			this.txtPosY.Location = new System.Drawing.Point(828, 14);
+			this.txtPosY.Location = new System.Drawing.Point(859, 14);
 			this.txtPosY.Name = "txtPosY";
 			this.txtPosY.ReadOnly = true;
-			this.txtPosY.Size = new System.Drawing.Size(26, 20);
+			this.txtPosY.Size = new System.Drawing.Size(57, 20);
 			this.txtPosY.TabIndex = 5;
 			// 
 			// btnLoad

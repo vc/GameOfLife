@@ -1,10 +1,9 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
 
 namespace GameOfLife.GameOfLife
 {
-	[DebuggerDisplay("X:{X} Y:{Y}")]
+	[DebuggerDisplay("X = {X} Y = {Y}")]
 	public struct PointULong
 	{
 		public static PointULong operator -(PointULong p, Point p1)
@@ -17,11 +16,6 @@ namespace GameOfLife.GameOfLife
 			return new Point((int)(p1.X - p2.X), (int)(p1.Y - p2.Y));
 		}
 
-		public static PointULong operator +(PointULong p1, PointULong p2)
-		{
-			return new PointULong(p1.X + p2.X, p1.Y + p2.Y);
-		}
-
 		public static PointULong operator +(PointULong p1, Point p2)
 		{
 			return new PointULong(p1.X + (ulong)p2.X, p1.Y + (ulong)p2.Y);
@@ -31,6 +25,7 @@ namespace GameOfLife.GameOfLife
 		{
 			return !(p1 == p2);
 		}
+	
 		public static bool operator ==(PointULong p1, PointULong p2)
 		{
 			return p1.X == p2.X && p1.Y == p2.Y;
