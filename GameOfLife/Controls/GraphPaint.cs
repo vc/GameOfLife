@@ -8,14 +8,10 @@ namespace GameOfLife.Controls
 	public partial class GraphPaint : UserControl
 	{
 		#region Fields
-		private Color _backColor = Color.White;
 		private readonly Color _foreColor = Color.Red;
-		private readonly Color _deadColor = Color.LightBlue;
 
 		private IEnumerable<Point> _alivePoints;
-		private IEnumerable<Point> _deadPoints;
 		private readonly Pen _penAlive;
-		private readonly Pen _penDead;
 
 		#endregion
 
@@ -32,7 +28,6 @@ namespace GameOfLife.Controls
 
 			InitializeComponent();
 			_penAlive = new Pen(_foreColor);
-			_penDead = new Pen(_deadColor);
 		}
 		#endregion
 

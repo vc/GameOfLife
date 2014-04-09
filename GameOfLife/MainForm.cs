@@ -54,6 +54,9 @@ namespace GameOfLife
 
 		private void Initialize()
 		{
+			if (_gol != null)
+				_gol.Dispose();
+
 			_gol = new GameOfLifeClass();
 
 			UpdateSize();
@@ -128,7 +131,7 @@ namespace GameOfLife
 
 		private void UpdateGraph(object sender, FireUpdateEventArgs e)
 		{
-			var visibleAlive= e.Alive.Select(p => _currentView.GetVisiblePoint(p, true)).Where(i => i.HasValue).Select(i => i.Value);
+			var visibleAlive = e.Alive.Select(p => _currentView.GetVisiblePoint(p, true)).Where(i => i.HasValue).Select(i => i.Value);
 			_graph.UpdateList(visibleAlive);
 
 			_graph.Invalidate();
@@ -141,18 +144,23 @@ namespace GameOfLife
 			try
 			{
 				var listAlive = FileSerializer.LoadPoints(fileName);
-				var dimension = FileSerializer.FindDimensions(listAlive);
-
-				var centerMap = new Point((int)(dimension.Width / _currentView.Scale / 2), (int)(dimension.Height / _currentView.Scale / 2));
-				var centerScreen = new Point((int)(_graph.Width / _currentView.Scale / 2), (int)(_graph.Height / _currentView.Scale / 2));
-
-				_gol.Load(listAlive, _currentView.AbsoluteLocation + centerMap + centerScreen);
+				LoadMap(listAlive);
 				Text = fileName;
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show("Error: Could not load data from file. Original error: " + ex.Message);
 			}
+		}
+
+		private void LoadMap(List<Point> listAlive)
+		{
+			var dimension = FileSerializer.FindDimensions(listAlive);
+
+			var centerMap = new Point((int)(dimension.Width  / 2), (int)(dimension.Height /  2));
+			var centerScreen = new Point((int)(_graph.Width / _currentView.Scale / 2), (int)(_graph.Height / _currentView.Scale / 2));
+
+			_gol.Load(listAlive, _currentView.AbsoluteLocation - centerMap + centerScreen);
 		}
 
 		private void SaveMap(string fileName)
@@ -262,6 +270,7 @@ namespace GameOfLife
 				btnLoad.Enabled = false;
 				btnSave.Enabled = false;
 				btnReset.Enabled = false;
+				btnCreate.Enabled = false;
 			}
 			else
 			{
@@ -271,6 +280,7 @@ namespace GameOfLife
 				btnLoad.Enabled = true;
 				btnSave.Enabled = true;
 				btnReset.Enabled = true;
+				btnCreate.Enabled = true;
 			}
 			_isStarted = !_isStarted;
 		}
@@ -365,8 +375,16 @@ namespace GameOfLife
 			UpdateSpeed();
 		}
 
+		private void BtnCreate_Click(object sender, EventArgs e)
+		{
+			var createDialog = new CreateMapForm { AlivePoints = _gol.GetAlivePoints() };
+			if (createDialog.ShowDialog(this) == DialogResult.OK)
+			{
+				var points = createDialog.AlivePoints;
+				LoadMap(points);
+			}
+		}
+
 		#endregion
-
-
 	}
 }

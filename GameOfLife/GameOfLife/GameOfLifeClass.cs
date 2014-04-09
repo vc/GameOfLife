@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
 
 namespace GameOfLife.GameOfLife
 {
-	public class GameOfLifeClass
+	public sealed class GameOfLifeClass:IDisposable
 	{
 		#region Fields
 
@@ -167,5 +168,11 @@ namespace GameOfLife.GameOfLife
 			}
 		}
 		#endregion
+
+		public void Dispose()
+		{
+			if(_speedChangedEvent!=null)
+				_speedChangedEvent.Dispose();
+		}
 	}
 }

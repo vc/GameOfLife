@@ -44,6 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CreateMapForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreateMapForm.Designer.cs">
+      <DependentUpon>CreateMapForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\FileSerializer.cs" />
     <Compile Include="Helpers\ScreenLocation.cs" />
     <Compile Include="Controls\GraphPaint.cs">
@@ -67,6 +73,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Controls\GraphPaint.resx">
       <DependentUpon>GraphPaint.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CreateMapForm.resx">
+      <DependentUpon>CreateMapForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
