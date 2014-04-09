@@ -14,7 +14,7 @@ namespace GameOfLife.GameOfLife
 
 		private bool _stop = false;
 
-		private delegate void MyEventHandler(List<PointULong> born, List<PointULong> dead);
+		private delegate void MyEventHandler(List<PointULong> alive);
 
 		private readonly MyEventHandler _myFireUpdater;
 		private int _speed;
@@ -37,10 +37,10 @@ namespace GameOfLife.GameOfLife
 			}
 		}
 
-		private void OnFireUpdate(ICollection<PointULong> born, ICollection<PointULong> dead)
+		private void OnFireUpdate(ICollection<PointULong> alive)
 		{
 			if (FireUpdate != null)
-				FireUpdate(this, new FireUpdateEventArgs(born, dead));
+				FireUpdate(this, new FireUpdateEventArgs(alive));
 		}
 		#endregion
 
@@ -53,7 +53,7 @@ namespace GameOfLife.GameOfLife
 			_aroundAliveCells = new Dictionary<PointULong, Cell>();
 		}
 		#endregion
-		
+
 		#region Private Methods
 
 		private void SetAlive(IEnumerable<PointULong> alive)
@@ -76,18 +76,23 @@ namespace GameOfLife.GameOfLife
 		/// <summary>
 		/// Make a step in the game
 		/// </summary>
-		private void GameStep(ref List<PointULong> born, ref List<PointULong> dead)
+		private void GameStep(ref List<PointULong> alive)
 		{
 			var aliveNeighbors = new Dictionary<PointULong, int>();
 
 			foreach (var i in _aliveCells.Concat(_aroundAliveCells).AsParallel())
 			{
-				var nearMeCells = _aliveCells.AsParallel().Count(j => i.Value.IsNearMe(j.Value));
+				var nearMeCells = 0;
+				foreach (var aliveCell in _aliveCells.AsParallel())
+				{
+					if (i.Value.IsNearMe(aliveCell.Value))
+						nearMeCells++;
+				}
+				//_aliveCells.AsParallel().Count(j => i.Value.IsNearMe(j.Value));
 				aliveNeighbors[i.Key] = nearMeCells;
 			}
 
-			born = new List<PointULong>();
-			dead = new List<PointULong>();
+			alive = new List<PointULong>();
 
 			foreach (var i in aliveNeighbors.AsParallel())
 			{
@@ -95,14 +100,12 @@ namespace GameOfLife.GameOfLife
 				var willBorn = Algorithm.NextState(isAlive, i.Value);
 
 				if (willBorn)
-					born.Add(i.Key);
-				/*else
-					dead.Add(i.Key);*/
+					alive.Add(i.Key);
 			}
 
 			_aliveCells.Clear();
 			_aroundAliveCells.Clear();
-			SetAlive(born);
+			SetAlive(alive);
 		}
 		#endregion
 
@@ -119,7 +122,28 @@ namespace GameOfLife.GameOfLife
 			_aroundAliveCells.Clear();
 			var aliveUPoints = alive.Select(i => offset + i);
 			SetAlive(aliveUPoints);
-			_myFireUpdater.Invoke(aliveUPoints.ToList(), new List<PointULong>());
+			_myFireUpdater.Invoke(aliveUPoints.ToList());
+		}
+
+		/// <summary>
+		/// Save points
+		/// </summary>
+		/// <returns>Alive points</returns>
+		public List<Point> GetAlivePoints()
+		{
+			if(_aliveCells.Count==0)
+				return new List<Point>();
+
+			var minPoint = _aliveCells.First().Key;
+			foreach (var p in _aliveCells.Keys.AsParallel())
+			{
+				if (p.X < minPoint.X)
+					minPoint.X = p.X;
+				if (p.Y < minPoint.Y)
+					minPoint.Y = p.Y;
+			}
+
+			return _aliveCells.Keys.AsParallel().Select(p => p - minPoint).ToList();
 		}
 
 		/// <summary>
@@ -129,12 +153,12 @@ namespace GameOfLife.GameOfLife
 		public void Play(int? steps)
 		{
 			_stop = false;
-			List<PointULong> born = null;
+			List<PointULong> alive= null;
 			List<PointULong> dead = null;
 			while (!_stop && (!steps.HasValue || steps > 0))
 			{
-				GameStep(ref born, ref dead);
-				_myFireUpdater.Invoke(born, dead);
+				GameStep(ref alive);
+				_myFireUpdater.Invoke(alive);
 
 				_speedChangedEvent.WaitOne(_speed);
 

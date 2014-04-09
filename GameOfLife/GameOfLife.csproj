@@ -44,7 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ScreenLocation.cs" />
+    <Compile Include="Helpers\FileSerializer.cs" />
+    <Compile Include="Helpers\ScreenLocation.cs" />
     <Compile Include="Controls\GraphPaint.cs">
       <SubType>UserControl</SubType>
     </Compile>

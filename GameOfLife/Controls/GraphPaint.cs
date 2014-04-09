@@ -37,10 +37,9 @@ namespace GameOfLife.Controls
 		#endregion
 
 		#region Public Methods
-		public void UpdateList(IEnumerable<Point> visibleBorn, IEnumerable<Point> visibleDead)
+		public void UpdateList(IEnumerable<Point> visibleAlive)
 		{
-			_alivePoints = visibleBorn;
-			_deadPoints = visibleDead;
+			_alivePoints = visibleAlive;
 		}
 		#endregion
 

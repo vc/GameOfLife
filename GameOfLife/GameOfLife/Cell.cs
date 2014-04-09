@@ -6,8 +6,11 @@ namespace GameOfLife.GameOfLife
 {
 	public class Cell
 	{
-		public int Age { get; set; }
-		public PointULong Location { get; set; }
+		public PointULong Location
+		{
+			get { return _location; }
+			set { _location = value; }
+		}
 
 		public Cell(PointULong location)
 		{
@@ -16,9 +19,10 @@ namespace GameOfLife.GameOfLife
 
 		public bool IsNearMe(Cell otherCell)
 		{
-			return otherCell.Location.X >= Location.X - 1 && otherCell.Location.X <= Location.X + 1
-				   && otherCell.Location.Y >= Location.Y - 1 && otherCell.Location.Y <= Location.Y + 1
-				   && otherCell.Location != Location;
+			var otherLoc = otherCell._location;
+			return otherLoc.X >= _location.X - 1 && otherLoc.X <= _location.X + 1
+				   && otherLoc.Y >= _location.Y - 1 && otherLoc.Y <= _location.Y + 1
+				   && otherLoc != _location;
 		}
 
 		public List<PointULong> AroundCellsCoords
@@ -37,7 +41,7 @@ namespace GameOfLife.GameOfLife
 			}
 		}
 
-		protected PointULong? GetNeighborsCoord(NeighborsPositions pos)
+		private PointULong? GetNeighborsCoord(NeighborsPositions pos)
 		{
 			try
 			{
@@ -72,5 +76,7 @@ namespace GameOfLife.GameOfLife
 				new Point(1, 0),
 				new Point(1, 1),
 			};
+
+		private PointULong _location;
 	}
 }

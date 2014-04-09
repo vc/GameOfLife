@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 using GameOfLife.Controls;
 using GameOfLife.GameOfLife;
+using GameOfLife.Helpers;
 
 namespace GameOfLife
 {
@@ -33,7 +34,7 @@ namespace GameOfLife
 		public MainForm()
 		{
 			_currentView = new ScreenLocation(new PointULong(ulong.MaxValue / 2, ulong.MaxValue / 2));
-			
+
 			_graph = new GraphPaint();
 			_graph.MouseDown += Graph_MouseDown;
 			_graph.MouseMove += Graph_MouseMove;
@@ -58,7 +59,7 @@ namespace GameOfLife
 			UpdateSize();
 			UpdateScale(trbScale.Value);
 			UpdateSpeed();
-			
+
 			_gol.FireUpdate += UpdateGraph;
 		}
 
@@ -88,7 +89,6 @@ namespace GameOfLife
 			Initialize();
 			if (File.Exists(_lastFileName))
 				LoadMap(_lastFileName);
-			Start();
 		}
 
 		private void AbortWorker()
@@ -128,9 +128,8 @@ namespace GameOfLife
 
 		private void UpdateGraph(object sender, FireUpdateEventArgs e)
 		{
-			var visibleBorn = e.Born.Select(p => _currentView.GetVisiblePoint(p, true)).Where(i => i.HasValue).Select(i => i.Value);
-			var visibleDead = e.Dead.Select(p => _currentView.GetVisiblePoint(p, true)).Where(i => i.HasValue).Select(i => i.Value);
-			_graph.UpdateList(visibleBorn, visibleDead);
+			var visibleAlive= e.Alive.Select(p => _currentView.GetVisiblePoint(p, true)).Where(i => i.HasValue).Select(i => i.Value);
+			_graph.UpdateList(visibleAlive);
 
 			_graph.Invalidate();
 		}
@@ -141,38 +140,49 @@ namespace GameOfLife
 
 			try
 			{
-				var listAlive = new List<Point>();
-				var arrWidth = 0;
-				var arrHeight = 0;
-				using (var tr = File.OpenText(fileName))
-				{
-					var y = 0;
-					while (!tr.EndOfStream)
-					{
-						var line = tr.ReadLine();
-						var chars = line.ToCharArray();
-						var x = 0;
-						foreach (var c in chars)
-						{
-							if (c == '*')
-								listAlive.Add(new Point(x, y));
-							x++;
+				var listAlive = FileSerializer.LoadPoints(fileName);
+				var dimension = FileSerializer.FindDimensions(listAlive);
 
-						}
-						if (x > arrWidth)
-							arrWidth = x;
-						y++;
-					}
-					arrHeight = y;
-				}
-				var centerMap = new Point((int)(arrWidth / _currentView.Scale / 2), (int)(arrHeight / _currentView.Scale / 2));
+				var centerMap = new Point((int)(dimension.Width / _currentView.Scale / 2), (int)(dimension.Height / _currentView.Scale / 2));
 				var centerScreen = new Point((int)(_graph.Width / _currentView.Scale / 2), (int)(_graph.Height / _currentView.Scale / 2));
-				_gol.Load(listAlive, _currentView.AbsoluteLocation - centerMap + centerScreen);
+
+				_gol.Load(listAlive, _currentView.AbsoluteLocation + centerMap + centerScreen);
 				Text = fileName;
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show("Error: Could not load data from file. Original error: " + ex.Message);
+			}
+		}
+
+		private void SaveMap(string fileName)
+		{
+			try
+			{
+				var alivePoints = _gol.GetAlivePoints();
+				var matrix = new List<KeyValuePair<int, int>>();
+				var dimension = FileSerializer.FindDimensions(alivePoints);
+
+				foreach (var p in alivePoints)
+				{
+					matrix.Add(new KeyValuePair<int, int>(p.X, p.Y));
+				}
+
+				using (TextWriter tw = new StreamWriter(File.OpenWrite(fileName)))
+				{
+					for (int y = 0; y < dimension.Height; y++)
+					{
+						for (int x = 0; x < dimension.Width; x++)
+						{
+							tw.Write(matrix.Contains(new KeyValuePair<int, int>(x, y)) ? '*' : '.');
+						}
+						tw.Write(tw.NewLine);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Error: Could not save data to file. Original error: " + ex.Message);
 			}
 		}
 
@@ -205,7 +215,6 @@ namespace GameOfLife
 		{
 			var openFileDialog1 = new OpenFileDialog
 			{
-				//InitialDirectory = "c:\\",
 				Filter = "Game of life files (*.lfe)|*.lfe|All files (*.*)|*.*",
 				FilterIndex = 1,
 				RestoreDirectory = true
@@ -215,6 +224,22 @@ namespace GameOfLife
 			{
 				_lastFileName = openFileDialog1.FileName;
 				LoadMap(openFileDialog1.FileName);
+			}
+		}
+
+		private void BtnSave_Click(object sender, EventArgs e)
+		{
+			var openFileDialog1 = new SaveFileDialog
+			{
+				Filter = "Game of life files (*.lfe)|*.lfe|All files (*.*)|*.*",
+				FilterIndex = 1,
+				RestoreDirectory = true
+			};
+
+			if (openFileDialog1.ShowDialog() == DialogResult.OK)
+			{
+				_lastFileName = openFileDialog1.FileName;
+				SaveMap(openFileDialog1.FileName);
 			}
 		}
 
@@ -235,6 +260,8 @@ namespace GameOfLife
 				btnStart.Text = "Stop";
 				btnStep.Enabled = false;
 				btnLoad.Enabled = false;
+				btnSave.Enabled = false;
+				btnReset.Enabled = false;
 			}
 			else
 			{
@@ -242,6 +269,8 @@ namespace GameOfLife
 				btnStart.Text = "Start";
 				btnStep.Enabled = true;
 				btnLoad.Enabled = true;
+				btnSave.Enabled = true;
+				btnReset.Enabled = true;
 			}
 			_isStarted = !_isStarted;
 		}
@@ -337,5 +366,7 @@ namespace GameOfLife
 		}
 
 		#endregion
+
+
 	}
 }
