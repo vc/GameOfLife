@@ -1,0 +1,13 @@
+bin
+obj
+
+*.suo
+*.user
+*.aps
+*.eto
+
+*.dbmdl
+
+TestResults
+/Logs
+00
