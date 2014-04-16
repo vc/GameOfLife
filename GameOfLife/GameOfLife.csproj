@@ -50,7 +50,10 @@
     <Compile Include="CreateMapForm.Designer.cs">
       <DependentUpon>CreateMapForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GameOfLife\Cellcollection.cs" />
+    <Compile Include="GameOfLife\CellFromCollection.cs" />
     <Compile Include="Helpers\FileSerializer.cs" />
+    <Compile Include="Helpers\Helper.cs" />
     <Compile Include="Helpers\ScreenLocation.cs" />
     <Compile Include="Controls\GraphPaint.cs">
       <SubType>UserControl</SubType>

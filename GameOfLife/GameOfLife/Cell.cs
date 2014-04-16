@@ -35,24 +35,17 @@ namespace GameOfLife.GameOfLife
 				for (int i = 0; i < 8; i++)
 				{
 					var posNeigh = GetNeighborsCoord((NeighborsPositions)i);
-					if (posNeigh != null)
-						ret.Add(posNeigh.Value);
+					//if (posNeigh != null)
+					ret.Add(posNeigh);
 				}
 
 				return ret;
 			}
 		}
 
-		private PointULong? GetNeighborsCoord(NeighborsPositions pos)
+		private PointULong GetNeighborsCoord(NeighborsPositions pos)
 		{
-			try
-			{
-				return Location - NeighborsPos[(int)pos];
-			}
-			catch (Exception)
-			{
-				return null;
-			}
+			return Location + NeighborsPos[(int)pos];
 		}
 
 		public enum NeighborsPositions
@@ -75,7 +68,7 @@ namespace GameOfLife.GameOfLife
 				new Point(-1, 0),
 				new Point(1, 0),
 				new Point(-1, 1),
-				new Point(1, 0),
+				new Point(0, 1),
 				new Point(1, 1),
 			};
 

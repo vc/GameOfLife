@@ -1,31 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 
 namespace GameOfLife.Helpers
 {
 	public static class FileSerializer
 	{
-		/// <summary>
-		/// Find dimension on all points in array
-		/// </summary>
-		/// <param name="points">Points</param>
-		/// <returns>Dimension of points region</returns>
-		public static Size FindDimensions(List<Point> points)
-		{
-			var w = 0;
-			var h = 0;
-			foreach (var point in points)
-			{
-				if (point.X > w)
-					w = point.X;
-				if (point.Y > h)
-					h = point.Y;
-			}
-
-			return new Size(w+1, h+1);
-		}
-
 		/// <summary>
 		/// Load points from .lfe format
 		/// </summary>
@@ -64,25 +45,25 @@ namespace GameOfLife.Helpers
 		/// <param name="alivePoints">List of all points</param>
 		public static void SavePoints(string fileName, List<Point> alivePoints)
 		{
-			var matrix = new List<KeyValuePair<int, int>>();
-			var dimension = FindDimensions(alivePoints);
+			using (var fs = File.OpenWrite(fileName))
+				SavePoints(fs, alivePoints);
 
-			foreach (var p in alivePoints)
-			{
-				matrix.Add(new KeyValuePair<int, int>(p.X, p.Y));
-			}
+		}
 
-			using (TextWriter tw = new StreamWriter(File.OpenWrite(fileName)))
+		public static void SavePoints(Stream s, List<Point> points)
+		{
+			var dimension = Helper.FindDimensions(points);
+			var matrix = points.Select(p => new KeyValuePair<int, int>(p.X, p.Y)).ToList();
+
+			TextWriter tw = new StreamWriter(s);
+			for (int y = 0; y < dimension.Height; y++)
 			{
-				for (int y = 0; y < dimension.Height; y++)
-				{
-					for (int x = 0; x < dimension.Width; x++)
-					{
-						tw.Write(matrix.Contains(new KeyValuePair<int, int>(x, y)) ? '*' : '.');
-					}
-					tw.Write(tw.NewLine);
-				}
+				for (int x = 0; x < dimension.Width; x++)
+					tw.Write(matrix.Contains(new KeyValuePair<int, int>(x, y)) ? '*' : '.');
+				
+				tw.Write(tw.NewLine);
 			}
+			tw.Flush();
 		}
 	}
 }

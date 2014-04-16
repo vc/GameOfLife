@@ -51,6 +51,7 @@ namespace GameOfLife
 			this.btnReset = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
 			this.btnCreate = new System.Windows.Forms.Button();
+			this.button1 = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.trbScale)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSpeed)).BeginInit();
 			this.SuspendLayout();
@@ -223,6 +224,16 @@ namespace GameOfLife
 			this.btnCreate.UseVisualStyleBackColor = true;
 			this.btnCreate.Click += new System.EventHandler(this.BtnCreate_Click);
 			// 
+			// button1
+			// 
+			this.button1.Location = new System.Drawing.Point(919, 12);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(34, 23);
+			this.button1.TabIndex = 0;
+			this.button1.Text = "cpy";
+			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.button1_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -242,6 +253,7 @@ namespace GameOfLife
 			this.Controls.Add(this.btnLoad);
 			this.Controls.Add(this.btnReset);
 			this.Controls.Add(this.btnStep);
+			this.Controls.Add(this.button1);
 			this.Controls.Add(this.btnStart);
 			this.Name = "MainForm";
 			this.Text = "Game of life";
@@ -270,6 +282,7 @@ namespace GameOfLife
 		private System.Windows.Forms.Button btnReset;
 		private System.Windows.Forms.Button btnSave;
 		private System.Windows.Forms.Button btnCreate;
+		private System.Windows.Forms.Button button1;
 	}
 }
 

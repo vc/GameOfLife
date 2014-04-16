@@ -68,11 +68,16 @@ namespace GameOfLife
 		private void Start()
 		{
 			AbortWorker();
-			_workerThread = new Thread(() => _gol.Play(null))
+
+			try
 			{
-				Priority = ThreadPriority.AboveNormal
-			};
-			_workerThread.Start();
+				_workerThread = new Thread(() => _gol.Play(null))
+				{
+					Priority = ThreadPriority.AboveNormal
+				};
+				_workerThread.Start();
+			}
+			catch (ThreadAbortException) { }
 		}
 
 		private void Step()
@@ -154,9 +159,9 @@ namespace GameOfLife
 
 		private void LoadMap(List<Point> listAlive)
 		{
-			var dimension = FileSerializer.FindDimensions(listAlive);
+			var dimension = Helper.FindDimensions(listAlive);
 
-			var centerMap = new Point((int)(dimension.Width  / 2), (int)(dimension.Height /  2));
+			var centerMap = new Point((int)(dimension.Width / 2), (int)(dimension.Height / 2));
 			var centerScreen = new Point((int)(_graph.Width / _currentView.Scale / 2), (int)(_graph.Height / _currentView.Scale / 2));
 
 			_gol.Load(listAlive, _currentView.AbsoluteLocation - centerMap + centerScreen);
@@ -234,11 +239,10 @@ namespace GameOfLife
 
 		private void Graph_MouseWheel(object sender, MouseEventArgs e)
 		{
-			try
-			{
-				trbScale.Value += Math.Sign(e.Delta);
-			}
-			catch (ArgumentOutOfRangeException) { }
+			var newVal = trbScale.Value + Math.Sign(e.Delta);
+
+			if (newVal >= trbScale.Minimum && newVal <= trbScale.Maximum)
+				trbScale.Value = newVal;
 		}
 
 		private void BtnStart_Click(object sender, EventArgs e)
@@ -325,5 +329,11 @@ namespace GameOfLife
 		}
 
 		#endregion
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			;//_gol._cells
+			Helpers.Helper.SavePointsToClip(_gol._cells.Collection);
+		}
 	}
 }
