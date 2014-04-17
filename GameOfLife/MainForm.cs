@@ -103,7 +103,7 @@ namespace GameOfLife
 			if (_workerThread != null && _workerThread.IsAlive)
 			{
 				_workerThread.Abort();
-				_workerThread.Join();
+				_workerThread.Join(1000);
 			}
 		}
 

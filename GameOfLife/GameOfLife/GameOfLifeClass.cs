@@ -10,7 +10,7 @@ namespace GameOfLife.GameOfLife
 	{
 		#region Fields
 
-		internal Cellcollection _cells;
+		internal CellCollection _cells;
 
 		private bool _stop = false;
 
@@ -49,7 +49,7 @@ namespace GameOfLife.GameOfLife
 		{
 			_myFireUpdater = OnFireUpdate;
 
-			_cells = new Cellcollection();
+			_cells = new CellCollection();
 		}
 		#endregion
 
@@ -62,9 +62,9 @@ namespace GameOfLife.GameOfLife
 				_cells.Add(item, true);
 
 			foreach (var item in dead)
-			{
 				_cells.MarkAsDead(item);
-			}
+
+			_cells.CleanAllDeads();
 		}
 
 		/// <summary>

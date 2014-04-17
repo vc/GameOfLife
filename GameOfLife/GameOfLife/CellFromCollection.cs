@@ -7,11 +7,11 @@ namespace GameOfLife.GameOfLife
 	[DebuggerDisplay("IsAlive={_isAlive} AlivesAround={AliveCountAroundMe}")]
 	public class CellFromCollection : Cell
 	{
-		private readonly Cellcollection _father;
+		private readonly CellCollection _father;
 		private bool _isAlive;
 		private readonly CellFromCollection[] _aroundCells;
 
-		public CellFromCollection(Cellcollection father, PointULong location, bool isAlive)
+		public CellFromCollection(CellCollection father, PointULong location, bool isAlive)
 			: base(location)
 		{
 			_father = father;
@@ -63,76 +63,30 @@ namespace GameOfLife.GameOfLife
 
 				_isAlive = value;
 
-				//i'am dead. Check if all around is deads and remove me;
-				if (!value)
-				{
-					RemoveMeInAroundCells();
-					//CheckAroundCellsForRemove()
-				}
-				else
-				{
-					FindAllAroundMe(_isAlive);
-				}
+				if (_isAlive)
+					FindAllAroundMe(true);
 			}
 		}
 
-		private void RemoveMeInAroundCells()
+		/// <summary>
+		/// Delete me from father and around me cells
+		/// </summary>
+		public void Delete()
 		{
-			if (AliveCountAroundMe != 0)
+			_father.Remove(_location);
+			for (int i = 0; i < 8; i++)
 			{
-				for (int i = 0; i < 8; i++)
+				if (_aroundCells[i] != null)
 				{
-					if (_aroundCells[i] != null && _aroundCells[i].AliveCountAroundMe == 0)
-					{
-						_father.Remove(_aroundCells[i].Location);
-						_aroundCells[i].RemoveMeInAroundCells();
-					}
+					var mePosInAroundCell = Math.Abs(i - 7);
+					_aroundCells[i]._aroundCells[mePosInAroundCell] = null;
 				}
-			}
-			else
-			{
-				for (int i = 0; i < 8; i++)
-				{
-					var aroundCell = _aroundCells[i];
-					if (aroundCell != null)
-					{
-						_aroundCells[i] = null;
-
-						var mePosInAroundCell = Math.Abs(i - 7);
-
-						aroundCell.RemoveMeInAroundCells();
-						aroundCell._aroundCells[mePosInAroundCell] = null;
-					}
-				}
-				_father.Remove(Location);
 			}
 		}
 
 		public int AliveCountAroundMe
 		{
-			get
-			{
-				return _aroundCells.Count(i => i != null && i.IsAlive);
-
-				if (IsAlive)
-					return _aroundCells.Count(i => i != null && i.IsAlive);
-				else
-				{
-					var aliveAroundMe = 0;
-					var aroundCoords = base.AroundCellsCoords;
-					for (int i = 0; i < 8; i++)
-					{
-						var point = aroundCoords[i];
-						CellFromCollection cell = null;
-						if (_father.TryGet(point, out cell))
-						{
-							if (cell.IsAlive)
-								aliveAroundMe++;
-						}
-					}
-					return aliveAroundMe;
-				}
-			}
+			get { return _aroundCells.Count(i => i != null && i._isAlive); }
 		}
 	}
 }

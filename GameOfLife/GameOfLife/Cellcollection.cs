@@ -4,11 +4,11 @@ using System.Collections.ObjectModel;
 
 namespace GameOfLife.GameOfLife
 {
-	public class Cellcollection
+	public class CellCollection
 	{
 		private readonly Dictionary<PointULong, CellFromCollection> _collection;
 
-		public Cellcollection()
+		public CellCollection()
 		{
 			_collection = new Dictionary<PointULong, CellFromCollection>();
 		}
@@ -45,6 +45,23 @@ namespace GameOfLife.GameOfLife
 				if (cell.IsAlive)
 					cell.IsAlive = false;
 			}
+			else
+			{
+				throw new ArgumentException();
+			}
+		}
+
+		public void CleanAllDeads()
+		{
+			var listToRemove = new List<CellFromCollection>();
+			foreach (var cell in _collection.Values)
+			{
+				if (cell.AliveCountAroundMe == 0 && !cell.IsAlive)
+					listToRemove.Add(cell);
+			}
+		
+			foreach (var cell in listToRemove)
+				cell.Delete();
 		}
 
 		public bool Contains(PointULong p)
@@ -66,7 +83,6 @@ namespace GameOfLife.GameOfLife
 		{
 			_collection.Clear();
 		}
-
 
 		public bool TryGet(PointULong point, out CellFromCollection cell)
 		{
