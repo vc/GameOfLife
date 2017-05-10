@@ -39,7 +39,7 @@ namespace GameOfLife
 			_graph.MouseMove += Graph_MouseMove;
 			_graph.MouseUp += Graph_MouseUp;
 			_graph.MouseWheel += Graph_MouseWheel;
-
+            
 			base.Controls.Add(_graph);
 
 			InitializeComponent();
@@ -83,6 +83,7 @@ namespace GameOfLife
 		private void Step()
 		{
 			AbortWorker();
+
 			_workerThread = new Thread(() => _gol.Play(1))
 			{
 				Priority = ThreadPriority.AboveNormal
@@ -102,6 +103,11 @@ namespace GameOfLife
 		{
 			if (_workerThread != null && _workerThread.IsAlive)
 			{
+				if (!_gol.Stop)
+				{
+					_gol.Stop = true;
+					_gol.StopEvent.WaitOne(1000);
+				}
 				_workerThread.Abort();
 				_workerThread.Join(1000);
 			}
@@ -133,9 +139,11 @@ namespace GameOfLife
 			_graph.Invalidate();
 		}
 
-		private void UpdateGraph(object sender, FireUpdateEventArgs e)
-		{
-			var visibleAlive = e.Alive.Select(p => _currentView.GetVisiblePoint(p, true)).Where(i => i.HasValue).Select(i => i.Value);
+        private void UpdateGraph(object sender, FireUpdateEventArgs e)
+        {
+            var alive = e.Alive;
+            toolStripStatusLblAliveCount.Text = $"Alive count: {alive.Count}";
+            var visibleAlive = alive.Select(p => _currentView.GetVisiblePoint(p, true)).Where(i => i.HasValue).Select(i => i.Value);
 			_graph.UpdateList(visibleAlive);
 
 			_graph.Invalidate();
@@ -153,7 +161,7 @@ namespace GameOfLife
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show("Error: Could not load data from file. Original error: " + ex.Message);
+				MessageBox.Show("Could not load data from file. Error: " + ex.Message);
 			}
 		}
 
@@ -176,7 +184,7 @@ namespace GameOfLife
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show("Error: Could not save data to file. Original error: " + ex.Message);
+				MessageBox.Show("Could not save data to file. Error: " + ex.Message);
 			}
 		}
 
@@ -241,8 +249,11 @@ namespace GameOfLife
 		{
 			var newVal = trbScale.Value + Math.Sign(e.Delta);
 
-			if (newVal >= trbScale.Minimum && newVal <= trbScale.Maximum)
-				trbScale.Value = newVal;
+            if (newVal >= trbScale.Minimum && newVal <= trbScale.Maximum)
+            {
+                _currentView.MousePoint = new Point(e.X, e.Y);
+                trbScale.Value = newVal;
+            }
 		}
 
 		private void BtnStart_Click(object sender, EventArgs e)
@@ -328,12 +339,11 @@ namespace GameOfLife
 			}
 		}
 
-		#endregion
+        #endregion
 
-		private void button1_Click(object sender, EventArgs e)
-		{
-			;//_gol._cells
-			Helpers.Helper.SavePointsToClip(_gol._cells.Collection);
-		}
-	}
+        private void btnBenchmark_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

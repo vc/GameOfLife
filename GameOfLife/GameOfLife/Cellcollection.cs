@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace GameOfLife.GameOfLife
@@ -24,8 +23,6 @@ namespace GameOfLife.GameOfLife
 			if (_collection.ContainsKey(point))
 			{
 				cell = _collection[point];
-				if (cell.IsAlive)
-					throw new ArgumentException("isAlive");
 				cell.IsAlive = true;
 			}
 			else
@@ -39,39 +36,15 @@ namespace GameOfLife.GameOfLife
 
 		public void MarkAsDead(PointULong p)
 		{
-			if (_collection.ContainsKey(p))
-			{
-				var cell = _collection[p];
-				if (cell.IsAlive)
-					cell.IsAlive = false;
-			}
-			else
-			{
-				throw new ArgumentException();
-			}
+			var cell = _collection[p];
+			cell.IsAlive = false;
 		}
 
-		public void CleanAllDeads()
+		public CellFromCollection TryGet(PointULong p)
 		{
-			var listToRemove = new List<CellFromCollection>();
-			foreach (var cell in _collection.Values)
-			{
-				if (cell.AliveCountAroundMe == 0 && !cell.IsAlive)
-					listToRemove.Add(cell);
-			}
-		
-			foreach (var cell in listToRemove)
-				cell.Delete();
-		}
-
-		public bool Contains(PointULong p)
-		{
-			return _collection.ContainsKey(p);
-		}
-
-		public CellFromCollection GetCellByPoint(PointULong p)
-		{
-			return _collection[p];
+			CellFromCollection ret;
+			_collection.TryGetValue(p, out ret);
+			return ret;
 		}
 
 		public void Remove(PointULong location)

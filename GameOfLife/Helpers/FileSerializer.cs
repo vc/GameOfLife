@@ -50,12 +50,17 @@ namespace GameOfLife.Helpers
 
 		}
 
-		public static void SavePoints(Stream s, List<Point> points)
+		/// <summary>
+		/// Save point to a stream
+		/// </summary>
+		/// <param name="stream">Stream to write</param>
+		/// <param name="points">Points to write</param>
+		public static void SavePoints(Stream stream, List<Point> points)
 		{
 			var dimension = Helper.FindDimensions(points);
 			var matrix = points.Select(p => new KeyValuePair<int, int>(p.X, p.Y)).ToList();
 
-			TextWriter tw = new StreamWriter(s);
+			TextWriter tw = new StreamWriter(stream);
 			for (int y = 0; y < dimension.Height; y++)
 			{
 				for (int x = 0; x < dimension.Width; x++)

@@ -29,26 +29,23 @@ namespace GameOfLife.GameOfLife
 			{
 				var aroundCoord = aroundCoords[i];
 
-				var containInFather = _father.Contains(aroundCoord);
+				var cell = _father.TryGet(aroundCoord);
 				//around cell already in _father
-				if (containInFather)
+				if (cell != null)
 				{
-					_aroundCells[i] = _father.GetCellByPoint(aroundCoord);
+					_aroundCells[i] = cell;
 					var mePosInAroundCell = Math.Abs(i - 7);
 					_aroundCells[i]._aroundCells[mePosInAroundCell] = this;
 				}
 				//around cell not found in _father
-				else
+				//i'am is alive. Add all around cells to father. and store in me.
+				else if (isAlive)
 				{
-					//i'am is alive. Add all around cells to father. and store in me.
-					if (isAlive)
-					{
-						_aroundCells[i] = _father.Add(aroundCoord, false);
+					_aroundCells[i] = _father.Add(aroundCoord, false);
 
-						//store me in this around cell
-						var mePosInAroundCell = Math.Abs(i - 7);
-						_aroundCells[i]._aroundCells[mePosInAroundCell] = this;
-					}
+					//store me in this around cell
+					var mePosInAroundCell = Math.Abs(i - 7);
+					_aroundCells[i]._aroundCells[mePosInAroundCell] = this;
 				}
 			}
 		}
@@ -58,28 +55,35 @@ namespace GameOfLife.GameOfLife
 			get { return _isAlive; }
 			set
 			{
-				if (value == false && _isAlive == false)
-					throw new ArgumentException("I'am already dead!");
-
 				_isAlive = value;
 
 				if (_isAlive)
 					FindAllAroundMe(true);
+				else
+					CheckIfINeed();
 			}
 		}
 
 		/// <summary>
-		/// Delete me from father and around me cells
+		/// check if i need
 		/// </summary>
-		public void Delete()
+		private void CheckIfINeed()
 		{
+			//if isAlive or have lives around me, than i need
+			if (_isAlive || AliveCountAroundMe != 0) return;
+
+			//Delete me from father and around me cells
 			_father.Remove(_location);
 			for (int i = 0; i < 8; i++)
 			{
-				if (_aroundCells[i] != null)
+				var cell = _aroundCells[i];
+				_aroundCells[i] = null;
+
+				if (cell != null)
 				{
 					var mePosInAroundCell = Math.Abs(i - 7);
-					_aroundCells[i]._aroundCells[mePosInAroundCell] = null;
+					cell._aroundCells[mePosInAroundCell] = null;
+					cell.CheckIfINeed();
 				}
 			}
 		}

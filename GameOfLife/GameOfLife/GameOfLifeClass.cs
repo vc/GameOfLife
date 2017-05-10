@@ -10,7 +10,7 @@ namespace GameOfLife.GameOfLife
 	{
 		#region Fields
 
-		internal CellCollection _cells;
+		private CellCollection _cells;
 
 		private bool _stop = false;
 
@@ -19,6 +19,7 @@ namespace GameOfLife.GameOfLife
 
 		private int _speed;
 		private readonly AutoResetEvent _speedChangedEvent = new AutoResetEvent(false);
+		private readonly AutoResetEvent _stopEvent = new AutoResetEvent(false);
 
 		#endregion
 
@@ -53,6 +54,10 @@ namespace GameOfLife.GameOfLife
 		}
 		#endregion
 
+		#region Properties
+		public AutoResetEvent StopEvent { get { return _stopEvent; } }
+		#endregion
+
 		#region Private Methods
 
 		private void SetAlive(IEnumerable<PointULong> alive, IEnumerable<PointULong> dead)
@@ -63,8 +68,6 @@ namespace GameOfLife.GameOfLife
 
 			foreach (var item in dead)
 				_cells.MarkAsDead(item);
-
-			_cells.CleanAllDeads();
 		}
 
 		/// <summary>
@@ -83,11 +86,11 @@ namespace GameOfLife.GameOfLife
 				if (willAlive)
 				{
 					alive.Add(i.Key);
-					
+
 					if (!i.Value.IsAlive)
 						born.Add(i.Key);
 				}
-				else if(i.Value.IsAlive)
+				else if (i.Value.IsAlive)
 					dead.Add(i.Key);
 			}
 
@@ -108,6 +111,15 @@ namespace GameOfLife.GameOfLife
 			var aliveUPoints = alive.Select(i => offset + i);
 			SetAlive(aliveUPoints, new List<PointULong>());
 			_myFireUpdater.Invoke(aliveUPoints.ToList());
+		}
+
+		/// <summary>
+		/// Stop play
+		/// </summary>
+		public bool Stop
+		{
+			get { return _stop; }
+			set { _stop = value; }
 		}
 
 		/// <summary>
@@ -152,12 +164,15 @@ namespace GameOfLife.GameOfLife
 				if (steps.HasValue)
 					steps--;
 			}
+			_stopEvent.Set();
 		}
 
 		public void Dispose()
 		{
 			if (_speedChangedEvent != null)
 				_speedChangedEvent.Dispose();
+			if (_stopEvent != null)
+				_stopEvent.Dispose();
 		}
 		#endregion
 	}
